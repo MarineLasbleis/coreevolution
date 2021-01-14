@@ -763,20 +763,40 @@ class Planet():
     
 class Rocky_Planet(Planet):
     
-    def __init__(self, Mp, XFe, FeM, S):
+    def __init__(self, Mp, XFe, FeM, S, data_folder="../data/", with_DTcmb=True):
+        print("Initializing planet...")
         self.Mp = Mp
         self.XFe = XFe
         self.FeM = FeM
         self.S = S
-        self.parameters(Mp, XFe, FeM)
+        self.data_folder = data_folder
+        self.with_DTcmb = with_DTcmb
+        self.parameters()
+        print("Planet iniatialized.")
+        
+    def structure_file_name(self):
+        name = "M_ {:.1f}_Fe_{:.0f}.0000_FeM_{:2.0f}.0000.yaml".format(self.Mp, self.XFe, self.FeM)
+        if self.with_DTcmb: 
+            DTcmb = "/Ini_With_DTcmb/"
+        else:
+            DTcmb = "/Ini_No_DTcmb/"
+        return self.data_folder+DTcmb+name
     
-    def parameters(self, Mp, XFe, FeM):
+    def qcmb_file_name(self):
+        name = "res_t_HS_Tm_Tb_qs_qc_M{:02d}_Fe{:02d}_#FeM{:02d}.res".format(int(10*self.Mp),int(self.XFe), int(self.FeM))
+        return self.data_folder+"/Q_CMB/"+name
+    
+    def parameters(self):
         """ Load parameter files """
-        self.read_parameters("../data/Ini_With_DTcmb/M_ {:.1f}_Fe_{:.0f}.0000_FeM_{:2.0f}.0000.yaml".format(Mp, XFe, FeM))
+
+        structure_file = self.structure_file_name()
+        self.read_parameters(structure_file)
+        
         #self.read_parameters("Earth.yaml")
-        qcmb_ev = pd.read_csv("../data/Q_CMB/res_t_HS_Tm_Tb_qs_qc_M{:02d}_Fe{:02d}_#FeM{:02d}.res".format(int(10*Mp),int(XFe), int(FeM)), skipinitialspace=True, sep=" ", index_col=False,skiprows=[0])
-        qcmb_ev.columns = ["time", "H_rad", "T_um","T_cmb","q_surf","qcmb"]
-        self.time_vector = qcmb_ev["time"] *1e6
+        qcmb_file = self.qcmb_file_name()
+        qcmb_ev = pd.read_csv(qcmb_file, skipinitialspace=True, sep=" ", index_col=False, skiprows=[0], names=["time", "H_rad", "T_um","T_cmb","q_surf","qcmb"])
+        # qcmb_ev.columns = ["time", "H_rad", "T_um","T_cmb","q_surf","qcmb"]
+        self.time_vector = qcmb_ev["time"] *1e6  # time was in Myrs
         self.qcmb = qcmb_ev["qcmb"]
             
 
