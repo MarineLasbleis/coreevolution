@@ -9,6 +9,7 @@ import pandas as pd
 from scipy.misc import derivative
 from scipy.optimize import minimize_scalar
 from scipy.optimize import fsolve
+import os.path
 
 # -------------------------------------------------------------------------- #
 #                             CONSTANTS                                      #
@@ -744,7 +745,7 @@ class Planet():
         """ Initialize """
         pass
         
-    def parameters(self, Mp, XFe, FeM):
+    def parameters(self):
         """ Generate parameters """
         raise NotImplementedError(
             "need to implement parameters() in derived class!")
@@ -763,7 +764,17 @@ class Planet():
     
 class Rocky_Planet(Planet):
     
-    def __init__(self, Mp, XFe, FeM, S, data_folder="../data/", with_DTcmb=True):
+    def __init__(self, Mp, XFe, FeM, S, data_folder="../data/", with_DTcmb=True, file_qcmb_provided=True, qcmb=None):
+        """ Create a rocky planet with data from files. 
+        
+        Mp, XFe, FeM : mass, core fraction and iron content of the mantle
+        S : light element concentration (mass fraction)
+        data_folder: folder where are stored the data for the planet. 
+        Structures is nested in a folder called Ini_With_DTcmb or Ini_No_DTcmb.
+        Heat flux history is in a folder Q_CMB. 
+        file_qcmb_provided: default is True and file is searched in Q_CMB. If False, value in qcmb is used for 5 Gyears. 
+        qcmb: value in 10^3TW 
+        """
         print("Initializing planet...")
         self.Mp = Mp
         self.XFe = XFe
@@ -771,8 +782,14 @@ class Rocky_Planet(Planet):
         self.S = S
         self.data_folder = data_folder
         self.with_DTcmb = with_DTcmb
+        self.structure_file = self.structure_file_name()
+        if file_qcmb_provided: 
+            self.qcmb_file = self.qcmb_file_name()
+        else: 
+            self.qcmb_file = None
+            self.qcmb = qcmb
         self.parameters()
-        print("Planet iniatialized.")
+        print("Planet iniatialized. Mass is {}, core fraction is {}wt%".format(Mp, XFe/100))
         
     def structure_file_name(self):
         name = "M_ {:.1f}_Fe_{:.0f}.0000_FeM_{:2.0f}.0000.yaml".format(self.Mp, self.XFe, self.FeM)
@@ -780,23 +797,41 @@ class Rocky_Planet(Planet):
             DTcmb = "/Ini_With_DTcmb/"
         else:
             DTcmb = "/Ini_No_DTcmb/"
-        return self.data_folder+DTcmb+name
+        filename = self.data_folder+DTcmb+name
+        if os.path.isfile(filename):
+            return filename
+        else:
+            print ("File {} does not exist, please verify.".format(filename))
+        
     
     def qcmb_file_name(self):
-        name = "res_t_HS_Tm_Tb_qs_qc_M{:02d}_Fe{:02d}_#FeM{:02d}.res".format(int(10*self.Mp),int(self.XFe), int(self.FeM))
-        return self.data_folder+"/Q_CMB/"+name
+        name = "res_t_HS_Tm_Tb_qs_qc_M{:02d}_Fe{:02d}_#FeM{:02d}.res".format(int(10*self.Mp), int(self.XFe), int(self.FeM))
+        filename = self.data_folder+"/Q_CMB/"+name
+        if os.path.isfile(filename):
+            return filename
+        else:
+            print ("File {} does not exist, please verify.".format(filename))
     
     def parameters(self):
         """ Load parameter files """
 
-        structure_file = self.structure_file_name()
-        self.read_parameters(structure_file)
+        self.read_parameters(self.structure_file)
         
         #self.read_parameters("Earth.yaml")
-        qcmb_file = self.qcmb_file_name()
-        qcmb_ev = pd.read_csv(qcmb_file, skipinitialspace=True, sep=" ", index_col=False, skiprows=[0], names=["time", "H_rad", "T_um","T_cmb","q_surf","qcmb"])
+        if self.qcmb_file != None:
+            qcmb_ev = pd.read_csv(self.qcmb_file, skipinitialspace=True, sep=" ", index_col=False, skiprows=[0], names=["time", "H_rad", "T_um","T_cmb","q_surf","qcmb"])
         # qcmb_ev.columns = ["time", "H_rad", "T_um","T_cmb","q_surf","qcmb"]
-        self.time_vector = qcmb_ev["time"] *1e6  # time was in Myrs
-        self.qcmb = qcmb_ev["qcmb"]
+            self.time_vector = qcmb_ev["time"] *1e6  # time was in Myrs
+            self.qcmb = qcmb_ev["qcmb"]
+            # .qcmb = 
+            
+        else: 
+            if self.qcmb == None: 
+                print("A value for QCMB is needed. Please define the variable qcmb or provide a filename.")
+            else: 
+                N = 500
+                self.time_vector = pd.Series(np.linspace(0, 5e9, N))  # 5Gyears history
+                self.qcmb = pd.Series(np.ones(N)*self.qcmb)
+            
             
 
