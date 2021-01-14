@@ -23,7 +23,7 @@ setuptools.setup(
     install_requires=[
         'numpy',
         'pandas',
-        "yaml", 
+        "pyyaml", 
         'scipy',
         'matplotlib'
         ],

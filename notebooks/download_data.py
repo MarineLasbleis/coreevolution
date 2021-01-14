@@ -71,6 +71,8 @@ def data_structures(folder=""):
 def data_qcmb(folder):
     
     qcmb_folder = "/Q_CMB/"
+    if not os.path.exists(folder+qcmb_folder):
+        os.makedirs(folder+qcmb_folder)
     os.chdir(folder+qcmb_folder)
     
     url = "https://box.fu-berlin.de/s/ycDpD4DfKTcRDix"
