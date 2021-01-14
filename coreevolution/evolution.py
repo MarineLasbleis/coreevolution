@@ -118,7 +118,7 @@ class Evolution():
 # ------------------------------------------------------------------------------------------------------------------- #
 
     def run(self):
-        """Run evolution model"""        
+        """ Run evolution model """        
         for i,time in enumerate(self.planet.time_vector[1:]):
             
             # No initial inner core --> update_noic routine
