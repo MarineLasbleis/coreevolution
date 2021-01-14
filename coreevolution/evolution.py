@@ -736,24 +736,18 @@ class Evolution_Labrosse2015(Evolution):
         + 3. * self.planet.dTL_dchi * self.planet.chi0 * r**2. / (self.planet.L_rho**3. * self.fC(self.planet.r_OC / self.planet.L_rho, 0.))
         return result
 
+
+
+class Planet():
     
-class Rocky_Planet():
-    
-    def __init__(self,Mp,XFe,FeM,S):
-        self.Mp = Mp
-        self.XFe = XFe
-        self.FeM = FeM
-        self.S = S
-        self.parameters(Mp,XFe,FeM)
-    
-    def parameters(self,Mp,XFe,FeM):
-        """Load parameter files"""
-        self.read_parameters("../data/Ini_With_DTcmb/M_ {:.1f}_Fe_{:.0f}.0000_FeM_{:2.0f}.0000.yaml".format(Mp, XFe, FeM))
-        #self.read_parameters("Earth.yaml")
-        qcmb_ev = pd.read_csv("../data/Q_CMB/res_t_HS_Tm_Tb_qs_qc_M{:02d}_Fe{:02d}_#FeM{:02d}.res".format(int(10*Mp),int(XFe), int(FeM)), skipinitialspace=True, sep=" ", index_col=False,skiprows=[0])
-        qcmb_ev.columns = ["time", "H_rad", "T_um","T_cmb","q_surf","qcmb"]
-        self.time_vector = qcmb_ev["time"] *1e6
-        self.qcmb = qcmb_ev["qcmb"]
+    def __init__(self):
+        """ Initialize """
+        pass
+        
+    def parameters(self, Mp, XFe, FeM):
+        """ Generate parameters """
+        raise NotImplementedError(
+            "need to implement parameters() in derived class!")
             
     def read_parameters(self, file): 
         """Read parameters from yaml file"""
@@ -764,4 +758,25 @@ class Rocky_Planet():
                 print(exc)
         for k, v in dict_param.items():
             setattr(self, k, float(v))
+
+
+    
+class Rocky_Planet(Planet):
+    
+    def __init__(self, Mp, XFe, FeM, S):
+        self.Mp = Mp
+        self.XFe = XFe
+        self.FeM = FeM
+        self.S = S
+        self.parameters(Mp, XFe, FeM)
+    
+    def parameters(self, Mp, XFe, FeM):
+        """ Load parameter files """
+        self.read_parameters("../data/Ini_With_DTcmb/M_ {:.1f}_Fe_{:.0f}.0000_FeM_{:2.0f}.0000.yaml".format(Mp, XFe, FeM))
+        #self.read_parameters("Earth.yaml")
+        qcmb_ev = pd.read_csv("../data/Q_CMB/res_t_HS_Tm_Tb_qs_qc_M{:02d}_Fe{:02d}_#FeM{:02d}.res".format(int(10*Mp),int(XFe), int(FeM)), skipinitialspace=True, sep=" ", index_col=False,skiprows=[0])
+        qcmb_ev.columns = ["time", "H_rad", "T_um","T_cmb","q_surf","qcmb"]
+        self.time_vector = qcmb_ev["time"] *1e6
+        self.qcmb = qcmb_ev["qcmb"]
+            
 
