@@ -762,12 +762,20 @@ class Evolution():
 
 
 class Evolution_Bouchet2013(Evolution):
-    def T_liquidus_core(self, P):
+    """ Liquidus temperature based on the Bouchet et al. 2013 publication. 
+    
+    Two functions are modified: 
+    T_liquidus_core
+    and 
+    dTL_dr_IC
+    """
+    
+    def T_liquidus_core(self, P, S):
         a = 31.3
         c = 1.99
         P0 = 0.
         T0 = 1811.
-        return ((P-P0)/a+1.)**(1./c) * T0
+        return ((P-P0)/a+1.)**(1./c) * T0 * (1./(1.-np.log(1.-S)))
 
     def dTL_dr_IC(self, x):
         K0 = (2./3. * np.pi * self.planet.L_rho **
@@ -826,7 +834,7 @@ class Rocky_Planet(Planet):
         Structures is nested in a folder called Ini_With_DTcmb or Ini_No_DTcmb.
         Heat flux history is in a folder Q_CMB. 
         file_qcmb_provided: default is True and file is searched in Q_CMB. If False, value in qcmb is used for 5 Gyears. 
-        qcmb: value in 10^3TW 
+        qcmb: value in W/m²
         """
         print("Initializing planet...")
         self.Mp = Mp
