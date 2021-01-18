@@ -80,23 +80,11 @@ class Evolution():
         self.planet.TL0 = self.T_liquidus_core(self.planet.P0, self.planet.S)
         self.planet.r_IC_0 = self.find_r_IC(self.planet.T0, self.planet.S)
 
-        # Check if the IC radius and melting temperature I find correspond to the ones in the planet structure
-        if self.planet.S == 0:
-            assert int(self.planet.TL0) == int(self.planet.TL0_0), int(
-                self.planet.r_IC_0) == int(self.planet.r_IC_0)
-        elif self.planet.S == 0.05:
-            assert int(self.planet.TL0) == int(self.planet.TL0_005), int(
-                self.planet.r_IC_0) == int(self.planet.r_IC_005)
-        elif self.planet.S == 0.11:
-            assert int(self.planet.TL0) == int(self.planet.TL0_011), int(
-                self.planet.r_IC_0) == int(self.planet.r_IC_011)
-
         if self.planet.r_IC_0 == 0.0:
             # If no initial inner core, P0 and T0 are same as in yaml parameter file
             self.T[0] = self.planet.T0
             self.P_IC[0] = self.planet.P0
             self.S_t[0] = self.planet.S
-
         elif self.planet.r_IC_0 > self.planet.r_OC:
             # If the initial inner core is larger than outer core radius (e.g., warm starts), recalculate P, S, and T
             self.P_IC[0] = self.planet.Pcmb
@@ -107,7 +95,6 @@ class Evolution():
             self.T[0] = self.planet.Tcmb
             # Correct the inner core radius
             self.planet.r_IC_0 = self.planet.r_OC
-
         else:
             # If initial inner core, define T by using the melting temperature by Stixrude
             # Define P by calculating the pressure at the ICB radius
@@ -117,8 +104,8 @@ class Evolution():
                 self.M_OC(0)/self.M_OC(self.planet.r_IC_0)
             self.T[0] = self.T_liquidus_core(self.P_IC[0], self.S_t[0])
 
-        # Initial inner core radius, CMB heat flux set to 0"""
-        # I do this because the first value in the file of Lena is negative"""
+        # Initial inner core radius, CMB heat flux set to 0
+        # I do this because the first value in the file of Lena is negative
         self.r_IC[0] = self.planet.r_IC_0
         self.T_CMB[0] = self.T_adiabat(self.planet.r_OC, self.T[0])
 
