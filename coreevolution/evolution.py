@@ -715,6 +715,41 @@ class Evolution_Bouchet2013(Evolution):
         T0 = 1811.
         return ((P-P0)/a+1.)**(1./c) * T0
     
+    
+    def dTL_dr_IC(self, radius):
+        """ partial derivative of T liquidus as function of the inner core radius
+        
+        x: radius of inner core
+        """
+        
+        P0 = 0.
+        T0 = 1811.
+        a = 31.3
+        c = 1.99
+        
+        K0 = (2./3. * np.pi * self.planet.L_rho **2 * \
+            self.planet.rho_0**2 * GC)/1e9
+        L_rho = self.planet.L_rho
+        Pc = self.planet.P0
+        rho_0 = self.planet.rho_0
+        M_OC_0 = self.M_OC(0)
+        A_rho = self.planet.A_rho
+        X0 = self.planet.S
+        
+        M0c = self.M_OC(radius)
+        
+        S = (X0*M_OC_0)/(M0c)
+        Pressure = Pc-self.pressure_diff(radius)
+        
+        dT_dP = T0/(a*c) * ((Pressure-P0)/a+1)**(1./c-1.) /(1-np.log(1-S))
+        dP_dr = -K0*(((2*radius)/(L_rho**2))-((16/5)*((radius**3)/(L_rho**4))))
+        dS_dr = ((X0*M_OC_0)/((M0c)**2))  *   (4*np.pi*rho_0*L_rho**2)   *  ((radius/L_rho)**2)  *   (1-   (radius/L_rho)**2 -A_rho*(radius/L_rho)**4)
+        dT_dS = - T0*(((Pressure-P0)/a)+1)**(1/c)/(1-np.log(1-S))**2/(1-S)
+        
+        return  dT_dP*dP_dr + dT_dS*dS_dr
+
+    
+    
     def dTL_dr_IC(self, x):        
         K0 = (2./3. * np.pi * self.planet.L_rho**2 * self.planet.rho_0**2 *GC)/1e9
         L_rho = self.planet.L_rho
