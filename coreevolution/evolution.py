@@ -76,15 +76,6 @@ class Evolution():
         # Find initial inner core radius and melting temperature
         self.planet.TL0 = self.T_liquidus_core(self.planet.P0, self.planet.S)
         self.planet.r_IC_0 = self.find_r_IC(self.planet.T0,self.planet.S)
-        
-        # Check if the IC radius and melting temperature I find correspond to the ones in the planet structure
-        if self.planet.S == 0:
-            assert int(self.planet.TL0) == int(self.planet.TL0_0),int(self.planet.r_IC_0) == int(self.planet.r_IC_0)
-        elif self.planet.S == 0.05:
-            assert int(self.planet.TL0) == int(self.planet.TL0_005),int(self.planet.r_IC_0) == int(self.planet.r_IC_005)
-        elif self.planet.S == 0.11:
-            assert int(self.planet.TL0) == int(self.planet.TL0_011),int(self.planet.r_IC_0) == int(self.planet.r_IC_011)
-
                         
         if self.planet.r_IC_0 == 0.0:
             # If no initial inner core, P0 and T0 are same as in yaml parameter file
@@ -708,12 +699,12 @@ class Evolution():
 
 
 class Evolution_Bouchet2013(Evolution):  
-    def T_liquidus_core(self,P):
+    def T_liquidus_core(self, P, S):
         a = 31.3
         c = 1.99
         P0 = 0.
         T0 = 1811.
-        return ((P-P0)/a+1.)**(1./c) * T0
+        return ((P-P0)/a+1.)**(1./c) * T0 /(1-np.log(1-S))
     
     
     def dTL_dr_IC(self, radius):
@@ -749,16 +740,6 @@ class Evolution_Bouchet2013(Evolution):
         return  dT_dP*dP_dr + dT_dS*dS_dr
 
     
-    
-    def dTL_dr_IC(self, x):        
-        K0 = (2./3. * np.pi * self.planet.L_rho**2 * self.planet.rho_0**2 *GC)/1e9
-        L_rho = self.planet.L_rho
-        P0 = 0.
-        T0 = 1811.
-        a = 31.3
-        c = 1.99
-        return -1.0*K0*T0*(2*x/L_rho**2 - 3.2*x**3/L_rho**4)*(-K0*(x**2/L_rho**2 - 0.8*x**4/L_rho**4)/a + 1.0)**(1.0/c)/(a*c*(-K0*(x**2/L_rho**2 - 0.8*x**4/L_rho**4)/a + 1.0))
-        
         
 class Evolution_Labrosse2015(Evolution):    
     def T_liquidus_core(self,r):
