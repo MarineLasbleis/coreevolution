@@ -68,36 +68,46 @@ def data_structures(folder=""):
         shutil.rmtree(src+"_moreFeCases")
 
 
-def data_qcmb(folder):
+# def data_qcmb(folder):
+#     
+#     qcmb_folder = "/Q_CMB/"
+#     if not os.path.exists(folder+qcmb_folder):
+#         os.makedirs(folder+qcmb_folder)
+#     os.chdir(folder+qcmb_folder)
+#     
+#     url = "https://box.fu-berlin.de/s/ycDpD4DfKTcRDix/download"
+#     all_files = ["Core_Heatflux_Hot_New_AllMasses_10Myr.tar"]
+#     
+#     #downloading the zip files
+#     for filename in all_files:
+#         if not os.path.isfile(filename):
+#             print("Downloading {} from {}".format(filename, url))
+#             r = requests.get(url+filename, allow_redirects=True)
+#             if r.status_code == 200:
+#             	with open(filename, 'wb') as f:
+#             		f.write(r.content)
+#             else:
+#             	print("problem with download:", r.status_code)
+#         else:
+#             print("{} already present.".format(filename))
     
+    
+#     for filename in glob.glob("*.tar"):
+#        print(filename)
+#        my_tar = tarfile.open(filename)
+#        my_tar.extractall('./') # specify which folder to extract to
+#        my_tar.close()
+#         with ZipFile(filename, 'r') as zip: 
+#            print('{}: Extracting all the files now...'.format(filename)) 
+#            zip.extractall("./") 
+#            print('Done!')
+#    print("Please extract the QCMB tar file manually")
+
+def data_qcmb(folder):
     qcmb_folder = "/Q_CMB/"
     if not os.path.exists(folder+qcmb_folder):
         os.makedirs(folder+qcmb_folder)
     os.chdir(folder+qcmb_folder)
-    
-    url = "https://box.fu-berlin.de/s/ycDpD4DfKTcRDix"
-    all_files = ["Core_Heatflux_Hot_New_AllMasses_10Myr.tar"]
-    
-    # downloading the zip files
-    for filename in all_files:
-        if not os.path.isfile(filename):
-            print("Downloading {} from {}".format(filename, url))
-            r = requests.get(url+filename, allow_redirects=True)
-            open(filename, 'wb').write(r.content)
-        else:
-            print("{} already present.".format(filename))
-    
-    
-    #for filename in glob.glob("*.tar"):
-    #    print(filename)
-    #    my_tar = tarfile.open(filename)
-    #    my_tar.extractall('./') # specify which folder to extract to
-    #    my_tar.close()
-        #with ZipFile(filename, 'r') as zip: 
-        #    print('{}: Extracting all the files now...'.format(filename)) 
-        #    zip.extractall("./") 
-        #    print('Done!')
-    print("Please extract manually the tar file")
 
 
 if __name__ == "__main__": 
