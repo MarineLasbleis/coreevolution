@@ -556,7 +556,6 @@ class Evolution():
         
         h = 1e3
         der = (fun(x+h)-fun(x-h))/(2*h)
-        #print (x,der,fun(x+h),fun(x-h))
         return der
     
     def M_OC(self,r):
@@ -658,10 +657,6 @@ class Evolution():
         u = 1.3 * ((self.planet.r_OC-r_IC)/7.29e-5)**(1./5.) *(F_th + F_X)**(2./5.)
         Rem = (u*(self.planet.r_OC-r_IC))/eta_m
         X=((self.planet.XFe*1e-2)-self.planet.FeM*1e-2)/(1-self.planet.FeM*1e-2)
-#         if r_IC==0.:
-#          	rho_av = (self.planet.rho_0 + self.rho(self.planet.r_OC))/2.
-#         else:
-#         	rho_av = (self.rho(r_IC) + self.rho(self.planet.r_OC))/2.
         if (F_th + F_X) < 0. or Rem<40.: 
             M = 0.
         else:
@@ -692,10 +687,6 @@ class Evolution():
     
     def _F_th(self,q_cmb,qc_ad,r):
         """Thermal buoyancy"""
-#         if r==0.:
-#          	rho_av = (self.planet.rho_0 + self.rho(self.planet.r_OC))/2.
-#         else:
-#         	rho_av = (self.rho(r) + self.rho(self.planet.r_OC))/2.
         return self.planet.alpha_c * self.planet.gc / self.planet.rho_0 / self.planet.CP * (q_cmb - qc_ad)
     
     def _qc_ad(self,k_c,T_cmb,rho_OC):
@@ -709,12 +700,7 @@ class Evolution():
             self.planet.Deltarho_ICB = 0.
         else:
             self.planet.Deltarho_ICB = 600./0.11 * S
-#         if r==0.:
-#          	rho_av = (self.planet.rho_0 + self.rho(self.planet.r_OC))/2.
-#         else:
-#         	rho_av = (self.rho(r) + self.rho(self.planet.r_OC))/2.
         g = 4. * np.pi/3. * GC * self.planet.rho_0 * r*(1.-3./5. * ((r)**2)/((self.planet.L_rho)**2) - 3. * self.planet.A_rho/7. * ((r)**4.)/((self.planet.L_rho)**4.))
-        #g = self.planet.gc * r / self.planet.r_OC
         return g * self.planet.Deltarho_ICB /self.planet.rho_0 * (r/self.planet.r_OC)**2 * drIC_dt
 
 
